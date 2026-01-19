@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,19 +6,20 @@
 
 @layer base {
   :root {
-    /* DevFellowship Dark Theme */
-    --background: 0 0% 4%;
+    /* Gamified Dark Theme */
+    --background: 0 0% 6%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 8%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - DevFellowship Orange */
+    /* Primary - DFL Orange */
     --primary: 33 90% 55%;
     --primary-foreground: 0 0% 4%;
+    --primary-dark: 25 85% 40%;
 
     /* Secondary */
     --secondary: 0 0% 15%;
@@ -30,35 +31,37 @@
     --accent: 33 90% 55%;
     --accent-foreground: 0 0% 4%;
 
-    /* Danger - DevFellowship Red */
-    --destructive: 6 76% 42%;
+    /* Danger - DFL Red */
+    --destructive: 6 76% 50%;
     --destructive-foreground: 0 0% 98%;
+    --destructive-dark: 6 76% 35%;
 
     /* Success */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 4%;
+    --success-dark: 142 71% 30%;
 
     /* Warning */
     --warning: 48 96% 53%;
     --warning-foreground: 0 0% 4%;
 
-    --border: 0 0% 15%;
+    /* Gamification Colors */
+    --life: 0 84% 60%;
+    --streak: 24 95% 53%;
+    --xp: 45 93% 47%;
+
+    --border: 0 0% 18%;
     --input: 0 0% 15%;
     --ring: 33 90% 55%;
 
     --radius: 0.75rem;
-
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(33 90% 55%), hsl(25 85% 50%));
-    --gradient-glow: radial-gradient(ellipse at center, hsl(33 90% 55% / 0.15), transparent 70%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 8%));
 
     /* Shadows */
     --shadow-glow: 0 0 30px -5px hsl(33 90% 55% / 0.3);
     --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.5);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 6%;
+    --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 33 90% 55%;
     --sidebar-primary-foreground: 0 0% 4%;
@@ -76,86 +79,37 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'DM Sans', sans-serif;
   }
 
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+
+  .font-display {
+    font-family: 'Nunito', sans-serif;
+  }
 }
 
 @layer components {
-  /* Glow effects */
-  .glow-primary {
-    box-shadow: var(--shadow-glow);
+  /* Preview - Clean style */
+  .preview-container {
+    @apply rounded-2xl overflow-hidden bg-white border border-border;
   }
 
-  .glow-border {
-    @apply border border-primary/50;
-    box-shadow: 0 0 20px -5px hsl(33 90% 55% / 0.2);
-  }
-
-  /* Activity status indicators */
-  .status-ok {
-    @apply bg-success text-success-foreground;
-  }
-
-  .status-warning {
-    @apply bg-warning text-warning-foreground;
-  }
-
-  .status-broken {
-    @apply bg-destructive text-destructive-foreground;
-  }
-
-  /* Card variants */
-  .card-elevated {
-    @apply bg-card border border-border rounded-xl;
-    box-shadow: var(--shadow-card);
-  }
-
-  .card-interactive {
-    @apply card-elevated transition-all duration-300;
-  }
-
-  .card-interactive:hover {
-    @apply border-primary/30;
-    box-shadow: var(--shadow-glow);
-    transform: translateY(-2px);
-  }
-
-  /* Activity card states */
-  .activity-locked {
-    @apply opacity-50 pointer-events-none grayscale;
-  }
-
-  .activity-current {
-    @apply glow-border;
-  }
-
-  .activity-completed {
-    @apply border-success/50;
-  }
-
-  /* Editor styling */
-  .editor-container {
-    @apply rounded-lg overflow-hidden border border-border bg-[#0a0a0a];
-  }
-
-  /* Code blocks */
-  .code-block {
-    @apply font-mono text-sm bg-muted/50 rounded-lg p-4 overflow-x-auto;
+  .preview-header {
+    @apply flex items-center justify-between px-3 py-2 bg-card border-b border-border;
   }
 
   /* Terminal style */
   .terminal {
-    @apply font-mono text-sm bg-black/50 rounded-lg p-4 border border-border;
+    @apply font-mono text-sm bg-black/80 rounded-xl p-4 border border-border;
   }
 
   /* Scrollbar styling */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -176,43 +130,61 @@
     @apply animate-pulse text-primary ml-0.5;
   }
 
-  /* Game Buttons - Duolingo Style */
-  .game-button {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-bold rounded-2xl;
-    @apply bg-primary text-primary-foreground;
-    @apply border-b-4 border-orange-700;
-    @apply hover:brightness-110 active:border-b-0 active:mt-1 active:mb-[-4px];
-    @apply transition-all duration-100;
-    @apply shadow-lg;
+  /* Loading skeleton shimmer */
+  .loading-skeleton {
+    @apply bg-muted rounded-lg;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--card)) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
   }
 
-  .game-button-outline {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-bold rounded-2xl;
-    @apply bg-transparent text-foreground border-2 border-border;
-    @apply border-b-4;
-    @apply hover:bg-muted active:border-b-2 active:mt-0.5 active:mb-[-2px];
-    @apply transition-all duration-100;
-  }
-
-  .game-button-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-bold rounded-2xl;
-    @apply bg-transparent text-muted-foreground;
-    @apply hover:bg-muted hover:text-foreground;
-    @apply transition-all duration-100;
+  /* Editor container */
+  .editor-container {
+    @apply rounded-xl overflow-hidden border border-border bg-[#0d0d0d];
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
+  /* Glow animation for current activity */
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
   }
+}
 
-  .bg-gradient-primary {
-    background-image: var(--gradient-primary);
+/* Keyframes */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
   }
+  100% {
+    background-position: 200% 0;
+  }
+}
 
-  .bg-glow {
-    background-image: var(--gradient-glow);
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(33 90% 55% / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(33 90% 55% / 0);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
