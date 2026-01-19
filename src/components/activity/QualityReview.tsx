@@ -65,8 +65,8 @@ export function QualityReview({ activity, onApprove, onRegenerate, onEdit }: Qua
       }
     >
       <div className="h-full flex flex-col gap-4">
-        {/* Code Editor - Main focus */}
-        <div className="flex-1 min-h-0">
+        {/* Code Editor - Main focus - needs explicit height for Monaco */}
+        <div className="flex-1 min-h-[300px]">
           <CodeEditor
             value={code}
             onChange={setCode}
