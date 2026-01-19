@@ -46,7 +46,7 @@ export function ActivityGameCard({ type, title, question, children, actions }: A
       transition={{ duration: 0.3 }}
     >
       {/* Header with type and title */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-4 shrink-0">
         <motion.div 
           className={`inline-flex items-center gap-2 ${config.color} mb-2`}
           initial={{ scale: 0.9 }}
@@ -62,20 +62,20 @@ export function ActivityGameCard({ type, title, question, children, actions }: A
         </h1>
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 overflow-hidden">
+      {/* Main content area - must have min-h-0 for flex child to shrink properly */}
+      <div className="flex-1 min-h-0">
         {children}
       </div>
 
       {/* Question */}
-      <div className="text-center py-4">
+      <div className="text-center py-4 shrink-0">
         <p className="text-lg text-muted-foreground font-medium">
           {question}
         </p>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-center gap-3 pb-4">
+      <div className="flex items-center justify-center gap-3 pb-4 shrink-0">
         {actions}
       </div>
     </motion.div>

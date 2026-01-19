@@ -76,7 +76,7 @@ export function BreakAndFix({ activity, errorMessage, onFix, onRequestHint }: Br
         </motion.div>
 
         {/* Code Editor */}
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-[250px]">
           <CodeEditor
             value={code}
             onChange={setCode}
