@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -8,24 +8,43 @@ import {
   BreakAndFix
 } from '@/components/activity';
 import { ProjectPreview } from '@/components/preview';
-import { AIResponse } from '@/components/ai';
 import { GitLog } from '@/components/project';
-import { GameHeader, ProgressPills, CelebrationOverlay } from '@/components/game';
-import { useActivityPage } from '@/hooks';
+import { 
+  GameHeader, 
+  ProgressPills, 
+  ResultModal,
+  AIHistoryDrawer,
+  AIHistoryButton
+} from '@/components/game';
+import { useActivityPage, useAIHistory } from '@/hooks';
 import { ActivityType } from '@/enums';
 import { lessonsData } from '@/test-utils/lessons.dummy';
+import { aiMessageTemplates } from '@/test-utils/ai-messages.dummy';
 
 export default function LessonPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
+  
+  // Drawer states
   const [gitLogOpen, setGitLogOpen] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationXP, setCelebrationXP] = useState(0);
+  const [aiHistoryOpen, setAiHistoryOpen] = useState(false);
+  
+  // Result modal state
+  const [showResult, setShowResult] = useState(false);
+  const [resultData, setResultData] = useState<{
+    isSuccess: boolean;
+    xpEarned: number;
+    feedback: string;
+    activityTitle: string;
+  } | null>(null);
 
   // Game state
   const [lives, setLives] = useState(3);
   const [streak, setStreak] = useState(3);
   const [xp, setXp] = useState(0);
+
+  // AI History
+  const { messages: aiMessages, addMessage } = useAIHistory();
 
   const lesson = lessonsData.find(l => l.id === lessonId);
 
@@ -35,8 +54,6 @@ export default function LessonPage() {
     currentActivityIndex,
     project,
     gitLog,
-    isAIStreaming,
-    aiResponse,
     canAdvance,
     handleActivityComplete: originalHandleActivityComplete,
     handleDecision,
@@ -47,20 +64,60 @@ export default function LessonPage() {
     setProjectBroken,
   } = useActivityPage();
 
-  // Wrap activity complete to show celebration
-  const handleActivityComplete = (activityId: string, responseKey?: string) => {
-    const earnedXP = 25;
-    setCelebrationXP(earnedXP);
-    setXp(prev => prev + earnedXP);
-    setShowCelebration(true);
-    originalHandleActivityComplete(activityId, responseKey);
-  };
+  // Handle activity completion with result modal
+  const handleActivityComplete = useCallback((
+    activityId: string, 
+    responseKey?: string,
+    forceSuccess: boolean = true
+  ) => {
+    const template = responseKey 
+      ? aiMessageTemplates[responseKey] 
+      : aiMessageTemplates['default-success'];
+    
+    const isSuccess = template?.isSuccess ?? forceSuccess;
+    const feedback = template?.message ?? aiMessageTemplates['default-success'].message;
+    const earnedXP = isSuccess ? 25 : 0;
 
-  const handleCelebrationContinue = () => {
-    setShowCelebration(false);
-    if (currentActivityIndex < activities.length - 1) {
+    // Add to AI history
+    addMessage({
+      activityId,
+      activityTitle: currentActivity?.title ?? 'Activity',
+      activityOrder: currentActivityIndex + 1,
+      message: feedback,
+      isSuccess,
+    });
+
+    // Update game state
+    if (isSuccess) {
+      setXp(prev => prev + earnedXP);
+    } else {
+      setLives(prev => Math.max(0, prev - 1));
+    }
+
+    // Show result modal
+    setResultData({
+      isSuccess,
+      xpEarned: earnedXP,
+      feedback,
+      activityTitle: currentActivity?.title ?? 'Activity',
+    });
+    setShowResult(true);
+
+    // Only call original complete if success
+    if (isSuccess) {
+      originalHandleActivityComplete(activityId, responseKey);
+    }
+  }, [currentActivity, currentActivityIndex, addMessage, originalHandleActivityComplete]);
+
+  // Handle result modal continue
+  const handleResultContinue = () => {
+    setShowResult(false);
+    
+    if (resultData?.isSuccess && currentActivityIndex < activities.length - 1) {
       goToNextActivity();
     }
+    
+    setResultData(null);
   };
 
   // Set project broken when on Break & Fix activity
@@ -94,11 +151,11 @@ export default function LessonPage() {
         return (
           <QualityReview
             activity={currentActivity}
-            onApprove={() => handleActivityComplete(currentActivity.id, 'act-1-feedback-approve')}
+            onApprove={() => handleActivityComplete(currentActivity.id, 'act-1-feedback-approve', false)}
             onRegenerate={() => triggerAIResponse('act-1-generate')}
             onEdit={(code) => {
               handleCodeSubmit(code, currentActivity.targetFiles[0]);
-              handleActivityComplete(currentActivity.id, 'act-1-feedback-edit');
+              handleActivityComplete(currentActivity.id, 'act-1-feedback-edit', true);
             }}
           />
         );
@@ -109,7 +166,7 @@ export default function LessonPage() {
             activity={currentActivity}
             onSubmit={(code) => {
               handleCodeSubmit(code, currentActivity.targetFiles[0]);
-              handleActivityComplete(currentActivity.id, 'act-2-success');
+              handleActivityComplete(currentActivity.id, 'act-2-success', true);
             }}
           />
         );
@@ -120,7 +177,11 @@ export default function LessonPage() {
             activity={currentActivity}
             onDecide={(optionId) => {
               handleDecision(optionId);
-              handleActivityComplete(currentActivity.id);
+              // Map option to response key
+              const responseKey = optionId === 'context' ? 'act-3-context' 
+                : optionId === 'zustand' ? 'act-3-zustand' 
+                : 'act-3-localstorage';
+              handleActivityComplete(currentActivity.id, responseKey, true);
             }}
           />
         );
@@ -133,7 +194,7 @@ export default function LessonPage() {
     at CheckoutPage (CheckoutPage.tsx:7:18)"
             onFix={(code) => {
               handleCodeSubmit(code, currentActivity.targetFiles[0]);
-              handleActivityComplete(currentActivity.id);
+              handleActivityComplete(currentActivity.id, 'act-4-success', true);
             }}
             onRequestHint={() => triggerAIResponse('act-4-hint')}
           />
@@ -178,13 +239,6 @@ export default function LessonPage() {
               {renderActivityContent()}
             </motion.div>
           </AnimatePresence>
-
-          {/* AI Response */}
-          {(aiResponse || isAIStreaming) && (
-            <div className="mt-4">
-              <AIResponse text={aiResponse} isStreaming={isAIStreaming} />
-            </div>
-          )}
         </div>
 
         {/* Right Panel - Preview */}
@@ -206,12 +260,32 @@ export default function LessonPage() {
         </div>
       </div>
 
-      {/* Celebration Overlay */}
-      <CelebrationOverlay
-        isVisible={showCelebration}
-        xpEarned={celebrationXP}
-        message="Activity completa!"
-        onContinue={handleCelebrationContinue}
+      {/* Footer Buttons - Fixed Position */}
+      <div className="fixed bottom-5 left-5 z-40">
+        <AIHistoryButton
+          messageCount={aiMessages.length}
+          onClick={() => setAiHistoryOpen(true)}
+          hasUnread={aiMessages.length > 0 && !showResult}
+        />
+      </div>
+
+      {/* Result Modal */}
+      {resultData && (
+        <ResultModal
+          isOpen={showResult}
+          isSuccess={resultData.isSuccess}
+          xpEarned={resultData.xpEarned}
+          activityTitle={resultData.activityTitle}
+          aiFeedback={resultData.feedback}
+          onContinue={handleResultContinue}
+        />
+      )}
+
+      {/* AI History Drawer */}
+      <AIHistoryDrawer
+        isOpen={aiHistoryOpen}
+        onClose={() => setAiHistoryOpen(false)}
+        messages={aiMessages}
       />
     </div>
   );
