@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, DecisionOption } from '@/types';
-import { Check, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ActivityGameCard } from '@/components/game';
+import { GameButton } from '@/components/game';
 
 interface DecisionForkProps {
   activity: Activity;
@@ -12,10 +14,6 @@ interface DecisionForkProps {
 export function DecisionFork({ activity, onDecide }: DecisionForkProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-
-  const handleSelect = (optionId: string) => {
-    setSelectedOption(optionId);
-  };
 
   const handleConfirm = () => {
     if (selectedOption) {
@@ -27,84 +25,35 @@ export function DecisionFork({ activity, onDecide }: DecisionForkProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Instructions */}
-      <motion.div 
-        className="p-4 rounded-lg bg-muted/30 border border-border"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h3 className="font-semibold mb-2 text-foreground">Contexto</h3>
-        <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
-          {activity.instructions}
-        </pre>
-      </motion.div>
-
-      {/* Warning */}
-      <motion.div 
-        className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <AlertCircle className="w-4 h-4 text-warning shrink-0" />
-        <span className="text-sm text-muted-foreground">
-          Sua decisão afetará as próximas activities e a estrutura do projeto
-        </span>
-      </motion.div>
-
+    <ActivityGameCard
+      type={activity.type}
+      title={activity.title}
+      question="Qual abordagem você prefere?"
+      actions={
+        <GameButton 
+          onClick={handleConfirm} 
+          disabled={!selectedOption || isConfirming}
+          variant="primary"
+          icon={isConfirming ? <Sparkles className="w-5 h-5 animate-pulse" /> : undefined}
+        >
+          {isConfirming ? 'Aplicando...' : 'Confirmar'}
+        </GameButton>
+      }
+    >
       {/* Options Grid */}
-      <motion.div 
-        className="grid gap-4 md:grid-cols-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div className="grid gap-4 md:grid-cols-3 h-full content-center">
         {activity.options?.map((option, index) => (
           <OptionCard
             key={option.id}
             option={option}
             index={index}
             isSelected={selectedOption === option.id}
-            onSelect={() => handleSelect(option.id)}
+            onSelect={() => setSelectedOption(option.id)}
             disabled={isConfirming}
           />
         ))}
-      </motion.div>
-
-      {/* Confirm Button */}
-      {selectedOption && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center"
-        >
-          <motion.button
-            onClick={handleConfirm}
-            disabled={isConfirming}
-            className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all",
-              "bg-primary text-primary-foreground",
-              "hover:opacity-90 disabled:opacity-50"
-            )}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {isConfirming ? (
-              <>
-                <Sparkles className="w-5 h-5 animate-pulse" />
-                Aplicando decisão...
-              </>
-            ) : (
-              <>
-                Confirmar Escolha
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </motion.button>
-        </motion.div>
-      )}
-    </div>
+      </div>
+    </ActivityGameCard>
   );
 }
 
@@ -122,21 +71,22 @@ function OptionCard({ option, index, isSelected, onSelect, disabled }: OptionCar
       onClick={onSelect}
       disabled={disabled}
       className={cn(
-        "relative p-6 rounded-xl border text-left transition-all duration-300",
+        "relative p-5 rounded-2xl border-2 text-left transition-all duration-200",
         "bg-card hover:bg-card/80",
         isSelected 
-          ? "border-primary ring-2 ring-primary/20" 
-          : "border-border hover:border-primary/30"
+          ? "border-primary ring-4 ring-primary/20 shadow-lg" 
+          : "border-border hover:border-primary/40"
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 * index }}
-      whileHover={!disabled ? { y: -4 } : undefined}
+      whileHover={!disabled ? { y: -4, scale: 1.02 } : undefined}
+      whileTap={!disabled ? { scale: 0.98 } : undefined}
     >
       {/* Selection indicator */}
       {isSelected && (
         <motion.div 
-          className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-primary flex items-center justify-center"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
         >
@@ -144,7 +94,7 @@ function OptionCard({ option, index, isSelected, onSelect, disabled }: OptionCar
         </motion.div>
       )}
 
-      <h3 className="font-bold text-lg text-foreground mb-2">
+      <h3 className="font-display font-bold text-lg text-foreground mb-2 pr-8">
         {option.label}
       </h3>
       
@@ -152,8 +102,8 @@ function OptionCard({ option, index, isSelected, onSelect, disabled }: OptionCar
         {option.description}
       </p>
       
-      <div className="pt-4 border-t border-border">
-        <span className="text-xs font-medium text-primary">Impacto:</span>
+      <div className="pt-3 border-t border-border">
+        <span className="text-xs font-bold text-primary uppercase tracking-wide">Impacto:</span>
         <p className="text-sm text-muted-foreground mt-1">
           {option.impact}
         </p>
