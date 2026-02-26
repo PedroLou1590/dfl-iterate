@@ -52,6 +52,7 @@ export interface Activity {
   editableRegions?: EditableRegion[];
   videoConfig?: VideoConfig;
   visualConfig?: VisualConfig;
+  trueFalseConfig?: TrueFalseConfig;
 }
 
 export interface ProjectFile {
@@ -85,4 +86,8 @@ export interface GitLogEntry {
   timestamp: Date;
   filesChanged: string[];
   type: 'activity_complete' | 'decision' | 'fix';
+}
+export interface TrueFalseConfig {
+  correctAnswer: boolean;
+  explanation?: string;
 }

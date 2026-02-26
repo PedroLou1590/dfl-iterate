@@ -6,42 +6,16 @@ export const activitiesData: Activity[] = [
     id: 'act-1',
     lessonId: 'lesson-1',
     order: 1,
-    type: ActivityType.QUALITY_REVIEW,
-    title: 'Revisão do Header Gerado',
-    objective: 'A IA gerou um componente Header para o BoxShop. Avalie se está pronto para produção.',
-    instructions: `A IA gerou o código abaixo usando Cloud Code.
-
-Sua missão:
-1. Leia o código gerado
-2. Identifique problemas (acessibilidade, performance, boas práticas)
-3. Decida: aprovar, pedir nova geração, ou editar manualmente
-
-Dica: Preste atenção em hardcoded values e falta de tipagem.`,
-    targetFiles: ['src/components/Header.tsx'],
+    type: ActivityType.TRUE_FALSE,
+    title: 'Verdadeiro ou Falso: Funções Puras',
+    objective: 'Teste seu conhecimento sobre funções puras em JavaScript.',
+    instructions: 'Uma função pura sempre retorna o mesmo resultado para os mesmos argumentos e não produz efeitos colaterais.',
+    targetFiles: [],
     status: ActivityStatus.CURRENT,
-    aiGeneratedCode: `import React from 'react';
-
-function Header() {
-  return (
-    <div style={{background: 'white', padding: '20px'}}>
-      <img src="/logo.png" />
-      <div>
-        <a href="/">Home</a>
-        <a href="/products">Produtos</a>
-        <a href="/cart">Carrinho (3)</a>
-      </div>
-    </div>
-  )
-}
-
-export default Header;`,
-    expectedIssues: [
-      'Sem atributo alt na imagem',
-      'Usando inline styles',
-      'Falta de semântica HTML (div ao invés de header/nav)',
-      'Número do carrinho hardcoded',
-      'Sem TypeScript types',
-    ],
+    trueFalseConfig: {
+      correctAnswer: true,
+      explanation: 'Correto! Funções puras são determinísticas e não modificam estado externo.',
+    },
   },
   {
     id: 'act-2',
