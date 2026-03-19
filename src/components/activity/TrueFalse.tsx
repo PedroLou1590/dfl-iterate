@@ -170,7 +170,7 @@ export function TrueFalse({ activity, onSubmit, progress }: TrueFalseProps) {
                 transition-all duration-150
               "
                         >
-                            Continuar <ChevronRight size={18} />
+                            Continuarr <ChevronRight size={18} />
                         </motion.button>
                     )}
                 </AnimatePresence>
