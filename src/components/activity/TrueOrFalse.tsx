@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, ChevronRight } from "lucide-react";
 import { Activity } from "@/types";
 
-export interface TrueFalseProps {
+export interface TrueOrFalseProps {
     activity: Activity;
     onSubmit: (answer: boolean) => void;
     progress?: number; // 0–100
 }
 
-export function TrueFalse({ activity, onSubmit, progress }: TrueFalseProps) {
+export function TrueOrFalse({ activity, onSubmit, progress }: TrueOrFalseProps) {
     const [selected, setSelected] = useState<boolean | null>(null);
     const [submitted, setSubmitted] = useState(false);
 
