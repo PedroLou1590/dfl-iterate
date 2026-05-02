@@ -37,7 +37,7 @@ export function TrueOrFalse({ activity, onSubmit }: TrueOrFalseProps) {
         <ActivityGameCard
             type={ActivityType.TRUE_OR_FALSE}
             title={activity.title}
-            question={activity.instructions}
+            question=""
             actions={actions}
         >
             <p className="text-lg text-foreground font-semibold mb-4">
