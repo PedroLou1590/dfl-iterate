@@ -1,6 +1,6 @@
 import { ActivityEvent } from "@/types";
 
-export const activitiesEventData: ActivityEvent[] = [
+const INITIAL_ACTIVITY_EVENTS: ActivityEvent[] = [
   {
     id: 'evt-1',
     type: 'lesson_completed',
@@ -20,3 +20,13 @@ export const activitiesEventData: ActivityEvent[] = [
     occurredAt: '2026-05-25T09:00:00.000Z'
   }
 ];
+
+let activityEventsData: ActivityEvent[] = [...INITIAL_ACTIVITY_EVENTS];
+
+export function getActivityEventsData(): ActivityEvent[] {
+  return [...activityEventsData];
+}
+
+export function setActivityEventsData(next: ActivityEvent[]): void {
+  activityEventsData = [...next];
+}

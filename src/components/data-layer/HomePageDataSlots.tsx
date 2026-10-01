@@ -15,7 +15,7 @@ import {
 } from '@/components/data-layer/preview.mock';
 import { useAnnouncements } from '@/hooks';
 import { PreviewSectionLabel } from './PreviewSectionLabel';
-import { useGetRecentActivity } from '@/hooks';
+import { useAddActivityEvent, useGetRecentActivity } from '@/hooks';
 
 /** SLOT T9, T7, T3, T11 — topo da HomePage (antes do hero) */
 export function HomePageTopDataSlots() {
@@ -27,6 +27,7 @@ export function HomePageTopDataSlots() {
   } = useAnnouncements();
 
   const { data: activityEvents, isPending: isActivityPending, isError: isActivityError, refetch: refetchActivity } = useGetRecentActivity();
+  const { mutate: addActivityEvent, isPending: isRegistering, isError: isAddError } = useAddActivityEvent();
   
   return (
     <div className="max-w-4xl mx-auto space-y-8 mb-12">
@@ -74,7 +75,15 @@ export function HomePageTopDataSlots() {
           </div>
         )}
 
-        {activityEvents && <RecentActivityFeed events={activityEvents} />}
+        {activityEvents && (
+          <RecentActivityFeed 
+            events={activityEvents}
+            onRegister={() => addActivityEvent({ type: 'lesson_completed',
+              label: 'Você completou uma atividade'})}
+            isRegistering={isRegistering}
+          />
+        )}
+        {isAddError && <p>Erro ao registrar atividade.</p>}
       </section>
     </div>
   );
